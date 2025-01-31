@@ -5,11 +5,114 @@
     <!-- god i feel like shit today lol -->
     <meta name="description" content="Assignment 2 - RR - A-Frame" />
     <!--  note we are using 1.5.0 as most recent -->
+    <link rel="stylesheet" href="css/user-gesture.css" />
     <script src="https://aframe.io/releases/1.6.0/aframe.min.js"></script>
+    <script src="js/snowball.js"></script>
+    <script>
+      //make button visible only after everything loads
+      AFRAME.registerComponent("start-experience", {
+        init: function () {
+          console.log("scene loaded.");
+          document.querySelector("#user-gesture-button").style.display =
+            "block";
+        },
+      });
+      //func to be called after user clicks start experience button
+      const startExperience = function () {
+        document.querySelector("#user-gesture-overlay").style.display = "none";
+
+        //get all ambient sounds, start all
+        const ambientSounds = document.querySelectorAll(".ambient-sound");
+        console.log("Playing music");
+        ambientSounds.forEach(function (soundEntity) {
+          soundEntity.components.sound.playSound();
+        });
+      };
+    </script>
   </head>
   <body>
-    <a-scene>
-      <a-sky color="#80bfff">a-sky>
+    <div id="user-gesture-overlay">
+      <div class="center">
+        <button id="user-gesture-button" onclick="startExperience();">
+          Enter Experience
+        </button>
+      </div>
+    </div>
+    <a-scene start-experience>
+      <a-assets>
+        <!-- <img
+          src="assets/textures/086_hdrmaps_com_free_above_clouds.jpg"
+          id="sky_map"
+        />
+        <a-asset-item
+          id="sword_model"
+          src="assets/models/Excaliber/scene.gltf"
+          response-type="arraybuffer"
+        ></a-asset-item> -->
+
+        <!-- sourced from https://www.youtube.com/watch?v=DwDWQCxhPoY -->
+        <audio
+          id="winter-music"
+          src="assets/sounds/WinterMusic.mp3"
+          preload="auto"
+          crossorigin="anonymous"
+        ></audio>
+      </a-assets>
+
+      <a-entity
+        id="main-cam"
+        camera
+        wasd-controls
+        look-controls
+        position="0 1.6 0"
+      >
+        <a-entity
+          cursor="rayOrigin:mouse;"
+          raycaster="far:20; interval:100; objects:.interactive;"
+        ></a-entity>
+
+        <a-entity
+          id="throw-button"
+          class="throw-button interactive"
+          snowball-throw="duration:500;"
+          position="-0.85 0.45 -0.7"
+          rotation="0 0 0"
+          shadow="receive: false; cast: false;"
+          scale="0.2 0.2 0.2"
+          geometry="primitive:plane;"
+          material="color:blue"
+        ></a-entity>
+
+        <!-- <a-sphere
+          id="snowball"
+          radius="0.15"
+          position="0.65 -0.4 -0.7"
+          color="pink"
+          visible="false"
+        ></a-sphere> -->
+        <!-- Put the sound in the camera so it acts as BGM -->
+        <!-- don't forget to turn it on again. TODO -->
+        <a-entity
+          id="bg_music"
+          class="ambients-sound"
+          sound="src:#winter-music; autoplay:false; loop:true"
+        ></a-entity>
+      </a-entity>
+
+      <a-sky color="#80bfff"></a-sky>
+      <!-- bgm -->
+
+      <a-entity
+        id="snow-plane"
+        class="snow-plane interactive"
+        snowball-pickup="duration:500;"
+        position="0 0 0"
+        rotation="-90 0 0"
+        scale="1000 1000 1000"
+        geometry="primitive:plane; width:1; height:1"
+        material="color:white"
+      >
+      </a-entity>
     </a-scene>
   </body>
 </html>
