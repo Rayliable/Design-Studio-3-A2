@@ -7,7 +7,10 @@
     <!--  note we are using 1.5.0 as most recent -->
     <link rel="stylesheet" href="css/user-gesture.css" />
     <script src="https://aframe.io/releases/1.6.0/aframe.min.js"></script>
+    <!-- backup -->
+    <script src="https://cdn.jsdelivr.net/gh/c-frame/aframe-physics-system@v4.2.2/dist/aframe-physics-system.min.js"></script>
     <script src="js/snowball.js"></script>
+    <script src="js/pickup.js"></script>
     <script>
       //make button visible only after everything loads
       AFRAME.registerComponent("start-experience", {
@@ -40,15 +43,31 @@
     </div>
     <a-scene start-experience>
       <a-assets>
-        <!-- <img
-          src="assets/textures/086_hdrmaps_com_free_above_clouds.jpg"
-          id="sky_map"
-        />
+        <!-- credits!
+         "Snowman" (https://skfb.ly/oOUKP) by Criistinaa is licensed under Creative Commons Attribution (http://creativecommons.org/licenses/by/4.0/).
+         "Snowman" (https://skfb.ly/orVKU) by ChloeKyria is licensed under Creative Commons Attribution (http://creativecommons.org/licenses/by/4.0/).
+         "Snowman" (https://skfb.ly/o9BxI) by MrPuppet is licensed under Creative Commons Attribution (http://creativecommons.org/licenses/by/4.0/). -->
+
+        <img src="assets/textures/sky_tex.jpg" id="sky_map" />
+
         <a-asset-item
-          id="sword_model"
-          src="assets/models/Excaliber/scene.gltf"
+          id="snowmanA"
+          src="assets/models/snowman.glb"
           response-type="arraybuffer"
-        ></a-asset-item> -->
+        ></a-asset-item>
+        <a-asset-item
+          id="snowmanB"
+          src="assets/models/snowman2.glb"
+          response-type="arraybuffer"
+        ></a-asset-item>
+        <a-asset-item
+          id="snowmanC"
+          src="assets/models/snowman3.glb"
+          response-type="arraybuffer"
+        ></a-asset-item>
+
+        <!-- sourced from Photo by Alex P: https://www.pexels.com/photo/a-close-up-shot-of-snow-12956072/-->
+        <img src="assets/textures/snow_tex.jpg" id="snow_map" />
 
         <!-- sourced from https://www.youtube.com/watch?v=DwDWQCxhPoY -->
         <audio
@@ -80,39 +99,75 @@
           shadow="receive: false; cast: false;"
           scale="0.2 0.2 0.2"
           geometry="primitive:plane;"
-          material="color:blue"
+          material="color:lavender"
+          text="value:Throw; color:black; align:center; width: 7;"
         ></a-entity>
 
-        <!-- <a-sphere
-          id="snowball"
-          radius="0.15"
-          position="0.65 -0.4 -0.7"
-          color="pink"
-          visible="false"
-        ></a-sphere> -->
+        <a-entity
+          id="switch-button"
+          class="switch-button interactive"
+          snowball-switch="duration:500;"
+          position="-0.85 0.15 -0.7"
+          rotation="0 0 0"
+          shadow="receive: false; cast: false;"
+          scale="0.2 0.2 0.2"
+          geometry="primitive:plane;"
+          material="color:pink"
+          text="value:Switch hands; color:black; align:center; width: 1; wrapCount: 8;"
+        ></a-entity>
         <!-- Put the sound in the camera so it acts as BGM -->
         <!-- don't forget to turn it on again. TODO -->
         <a-entity
           id="bg_music"
-          class="ambients-sound"
+          class="ambient-sound"
           sound="src:#winter-music; autoplay:false; loop:true"
         ></a-entity>
       </a-entity>
 
-      <a-sky color="#80bfff"></a-sky>
+      <a-sky material="src:#sky_map; shader: flat;"></a-sky>
       <!-- bgm -->
 
       <a-entity
         id="snow-plane"
+        static-body
         class="snow-plane interactive"
         snowball-pickup="duration:500;"
         position="0 0 0"
         rotation="-90 0 0"
         scale="1000 1000 1000"
         geometry="primitive:plane; width:1; height:1"
-        material="color:white"
+        material="src:#snow_map"
       >
       </a-entity>
+
+      <a-entity
+        id="snowmanA_model"
+        dynamic-body="shape:box;"
+        pickupable
+        position="5 0.2 -15"
+        rotation="0 0 0"
+        scale="1 1 1"
+        gltf-model="#snowmanA"
+        shadow="cast:true; receive:true"
+      ></a-entity>
+
+      <a-entity
+        id="snowmanB_model"
+        position="10 0.8 -15"
+        rotation="0 0 0"
+        scale=".8 .8 .8"
+        gltf-model="#snowmanB"
+        shadow="cast:true; receive:true"
+      ></a-entity>
+
+      <a-entity
+        id="snowmanC_model"
+        position="-5 0 -15"
+        rotation="0 0 0"
+        scale="5 5 5"
+        gltf-model="#snowmanC"
+        shadow="cast:true; receive:true"
+      ></a-entity>
     </a-scene>
   </body>
 </html>

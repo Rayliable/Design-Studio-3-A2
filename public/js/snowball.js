@@ -1,5 +1,6 @@
 //Keeping the test code from class down there so I can reference it.
 hasSnowball = false; //boolean has snowball
+rightHand = true; //right handed first
 
 AFRAME.registerComponent("snowball-pickup", {
   schema: {
@@ -11,18 +12,6 @@ AFRAME.registerComponent("snowball-pickup", {
 
     const CONTEXT_AF = this; //reference to this component
     CONTEXT_AF.cam = document.querySelector("#main-cam");
-    CONTEXT_AF.rightHand = false;
-    var ball = document.createElement("a-entity");
-
-    // CONTEXT_AF.ball.setAttribute("enabled", false);
-    // CONTEXT_AF.ball.setAttribute("animation", {
-    //   property: "rotation.y",
-    //   to: 360,
-    //   loop: true,
-    //   easing: "linear",
-    //   dur: CONTEXT_AF.data.duration,
-    //   enabled: false,
-    // });
 
     //listen for click
     CONTEXT_AF.el.addEventListener("click", function (e) {
@@ -30,6 +19,7 @@ AFRAME.registerComponent("snowball-pickup", {
         //no snowball
         console.log("already holding a snowball!");
       } else {
+        var ball = document.createElement("a-entity");
         //snowball pickup
         console.log("getting snowball.");
         CONTEXT_AF.cam.appendChild(ball);
@@ -38,25 +28,15 @@ AFRAME.registerComponent("snowball-pickup", {
           radius: 0.15,
         });
         ball.setAttribute("id", "snowball");
-        ball.setAttribute("position", { x: 0.65, y: -0.4, z: -0.7 });
-        ball.setAttribute("material", "color", "#cce5ff");
-        //CONTEXT_AF.ball.setAttribute("visible", true);
-        CONTEXT_AF.rightHand = true;
-        hasSnowball = true;
-      }
-    });
+        if (rightHand) {
+          ball.setAttribute("position", { x: 0.65, y: -0.4, z: -0.7 });
+        } else {
+          ball.setAttribute("position", { x: -0.65, y: -0.4, z: -0.7 });
+        }
 
-    CONTEXT_AF.el.addEventListener("contextmenu", function (e) {
-      if (hasSnowball === true && rightHand == true) {
-        //switch snowball to left hand
-        ball.setAttribute("position", { x: -0.65, y: -0.4, z: -0.7 });
-        CONTEXT_AF.rightHand = false;
-        console.log("switching hand to L");
-      } else if (hasSnowball === true && rightHand == false) {
-        //switch snowball to left hand
-        ball.setAttribute("position", { x: 0.65, y: -0.4, z: -0.7 });
-        CONTEXT_AF.rightHand = true;
-        console.log("switching hand to R");
+        ball.setAttribute("material", "src", "#snow_map");
+        //CONTEXT_AF.ball.setAttribute("visible", true);
+        hasSnowball = true;
       }
     });
   },
@@ -72,38 +52,97 @@ AFRAME.registerComponent("snowball-throw", {
     duration: { type: "number", default: 500 }, //duration is time for animation in ms
   },
   init: function () {
+    //referencing https://www.8thwall.com/8thwall/tossobject-aframe/code/toss-object.js
+    //also referencing https://www.youtube.com/watch?v=eQtMgt-R0lE
     // called when component is initialised - after aframe and the scene
     //console.log("called snowball-throw!");
 
     const CONTEXT_AF = this; //reference to this component
     CONTEXT_AF.cam = document.querySelector("#main-cam");
-    // console.log(CONTEXT_AF.cam);
-    // console.log(CONTEXT_AF.ball);
-    // CONTEXT_AF.ball.setAttribute("enabled", false);
-    // CONTEXT_AF.ball.setAttribute("animation", {
-    //   property: "rotation.y",
-    //   to: 360,
-    //   loop: true,
-    //   easing: "linear",
-    //   dur: CONTEXT_AF.data.duration,
-    //   enabled: false,
-    // });
+    sceneRef = document.querySelector("a-scene");
 
     //listen for click
     CONTEXT_AF.el.addEventListener("click", function (e) {
       if (hasSnowball === true) {
         CONTEXT_AF.ball = document.querySelector("#snowball");
-
-        console.log(CONTEXT_AF.ball);
+        //console.log(CONTEXT_AF.ball);
         //has snowball
         console.log("throwing a snowball!");
-        // CONTEXT_AF.ball.parentNode.removeChild(CONTEXT_AF.ball);
+        // CONTEXT_AF.ball.parentNode.removeChild(CONTEXT_AF.ball); //deprecated
         CONTEXT_AF.ball.remove();
         hasSnowball = false; //boolean has snowball false
+
+        const throwBall = document.createElement("a-entity");
+
+        throwBall.setAttribute("geometry", {
+          primitive: "sphere",
+          radius: 0.15,
+        });
+        throwBall.setAttribute("id", "throwball");
+
+        throwBall.setAttribute("material", "src", "#snow_map");
+        throwBall.setAttribute("position", CONTEXT_AF.cam.object3D.position);
+        throwBall.setAttribute("scale", "1 1 1");
+
+        const velocity = new THREE.Vector3(0, 0, -10);
+
+        // velocity.applyQuaternion(cam.object3D.rotation);
+
+        throwBall.setAttribute("velocity", velocity);
+
+        throwBall.setAttribute("dynamic-body", {
+          sphereRadius: 0.15,
+          shape: "sphere",
+        });
+
+        sceneRef.appendChild(throwBall);
+
+        // Delete the dropped ball
+
+        setTimeout(function () {
+          document.querySelector("#throwball").remove();
+          console.log("deleted thrown ball");
+        }, 2200);
       } else {
         //no snowball to throw
         console.log("no throwable snowball.");
         hasSnowball = false;
+      }
+    });
+  },
+  update: function () {},
+  tick: function () {},
+  remove: function () {},
+  pause: function () {},
+  play: function () {},
+});
+
+AFRAME.registerComponent("snowball-switch", {
+  schema: {
+    duration: { type: "number", default: 500 }, //duration is time for animation in ms
+  },
+  init: function () {
+    // called when component is initialised - after aframe and the scene
+    //console.log("called snowball-pickup!");
+
+    const CONTEXT_AF = this; //reference to this component
+    CONTEXT_AF.cam = document.querySelector("#main-cam");
+    rightHand = true;
+    //listen for click
+
+    CONTEXT_AF.el.addEventListener("click", function (e) {
+      if (hasSnowball === true && rightHand == true) {
+        var ball = document.querySelector("#snowball");
+        //switch snowball to left hand
+        ball.setAttribute("position", { x: -0.65, y: -0.4, z: -0.7 });
+        rightHand = false;
+        console.log("switching hand to L");
+      } else if (hasSnowball === true && rightHand == false) {
+        var ball = document.querySelector("#snowball");
+        //switch snowball to left hand
+        ball.setAttribute("position", { x: 0.65, y: -0.4, z: -0.7 });
+        rightHand = true;
+        console.log("switching hand to R");
       }
     });
   },
